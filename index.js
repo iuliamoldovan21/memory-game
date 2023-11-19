@@ -1,8 +1,39 @@
 const cards = document.querySelectorAll(".memory-card");
+const timerElement = document.getElementById("timer");
 
 let hasFlippedCard = false;
 let lockBoard = false;
 let firstCard, secondCard;
+
+function addTimer() {
+  const currentMoment = moment();
+
+  //modify newMoment to define game time
+  const newMoment = currentMoment.clone().add(60, "seconds");
+  let timeLeft = newMoment.diff(currentMoment, "seconds");
+
+  const timeValue = document.createTextNode(`Seconds left: ${timeLeft}`);
+  timerElement.appendChild(timeValue);
+
+  const countdown = setInterval(() => {
+    timerElement.innerHTML = `Seconds left: ${timeLeft}`;
+    console.log(timeLeft);
+    timeLeft -= 1;
+    if (timeLeft < 0) {
+      clearInterval(countdown);
+      timerElement.innerHTML = `TIME EXPIRED!`;
+      resetGame();
+    }
+  }, 1000);
+}
+
+function resetGame() {
+  setTimeout(() => {
+    unflipCards();
+    timerElement.innerHTML = "";
+    addTimer();
+  }, 3000);
+}
 
 function flipCard() {
   if (lockBoard) return;
@@ -31,7 +62,6 @@ function checkForMatch() {
 function disableCards() {
   firstCard.removeEventListener("click", flipCard);
   secondCard.removeEventListener("click", flipCard);
-  //resetBoard();
 }
 
 function unflipCards() {
@@ -44,13 +74,8 @@ function unflipCards() {
   }, 1500);
 }
 
-// function resetBoard() {
-//   [hasFlippedCard, lockBoard] = [false, false];
-//   firstCard = null;
-//   secondCard = null;
-// }
-
 (function shuffle() {
+  addTimer();
   cards.forEach((card) => {
     let randomPosition = Math.floor(Math.random() * 12);
     card.style.order = randomPosition;
@@ -58,4 +83,3 @@ function unflipCards() {
 })();
 
 cards.forEach((card) => card.addEventListener("click", flipCard));
-
